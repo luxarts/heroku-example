@@ -56,18 +56,29 @@ The folder structure will be:
 ## Create the Dockerfile
 1. Create a file with name `Dockerfile` in the root of the project with the following content
    ```Dockerfile
+   # Use alpine (very lightweight linux distro) with Go installed as a base image
    FROM golang:rc-alpine3.14 AS builder
 
+   # Create a folder called build
    RUN mkdir /build
+   # Change the working directory to the new folder
    WORKDIR /build
+   # Copy all the contents to the new folder
    COPY . .
+   # Build binary
    RUN go build -o output ./cmd/main.go
    
+   # Use alpine as a base image
    FROM alpine
+   # Create a user
    RUN adduser -S -D -H -h /app appuser
+   # Change current user
    USER appuser
+   # Copy the binary created before to a new folder
    COPY --from=builder /build/output /app/
+   # Change the working directory to the new folder
    WORKDIR /app
+   # Execute the binary
    CMD ["./output"]
    ```
 2. Build docker image
